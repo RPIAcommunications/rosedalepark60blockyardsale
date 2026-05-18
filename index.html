@@ -4,11 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rosedale Park 60-Block Yard Sale</title>
-  <!-- Leaflet CSS & JS loaded in <head> so L is defined before any script runs -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- SheetJS for real Excel export -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,7 +33,7 @@
     .toolbar button { padding:10px 18px; border-radius:var(--r); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; border:1px solid var(--bd); background:var(--cd); color:var(--tx); transition:all .15s; }
     #add-btn { background:var(--gd); color:var(--gl); border-color:var(--gd); font-size:14px; }
     #add-btn:hover { background:#3a5e3c; }
-    #csv-btn:hover, #xls-btn:hover, #pdf-btn:hover { background:var(--gp); border-color:var(--gm); color:var(--gd); }
+    #csv-btn:hover, #xls-btn:hover { background:var(--gp); border-color:var(--gm); color:var(--gd); }
 
     /* FORM */
     #reg-panel { display:none; background:var(--cd); border:1px solid var(--bd); border-radius:var(--rl); padding:1.25rem; margin-bottom:1rem; }
@@ -134,25 +130,6 @@
     .by { flex:1; background:var(--dg); color:#fff; border:none; border-radius:var(--r); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; padding:9px; cursor:pointer; }
     .bn { flex:1; background:transparent; border:1px solid var(--bd); border-radius:var(--r); font-family:'DM Sans',sans-serif; font-size:13px; color:var(--mu); padding:9px; cursor:pointer; }
 
-    /* ── PRINT / PDF STYLES ─────────────────────────────── */
-    @media print {
-      body { background:#fff; font-family: Georgia, serif; }
-      header, .toolbar, #reg-panel, #map, .legend, .cbtns, #mo, footer { display:none !important; }
-      #print-header { display:block !important; }
-      #print-map-img { display:block !important; }
-      .wrap { padding:0; max-width:100%; }
-      #list-hdr { display:block !important; font-size:16px; margin-bottom:12px; color:#2C4A2E; }
-      #list { display:block; }
-      .card { border:1px solid #ccc; border-radius:0; margin-bottom:10px; page-break-inside:avoid; padding:10px 14px; box-shadow:none; }
-      .card:hover { border-color:#ccc; box-shadow:none; }
-      .ca { color:#2C4A2E; text-decoration:none; }
-      .vbadge, .tag { border:1px solid #ccc; }
-    }
-    #print-header { display:none; padding:0 0 16px 0; border-bottom:2px solid #2C4A2E; margin-bottom:18px; }
-    #print-header h1 { font-family:'Playfair Display',serif; font-size:22px; color:#2C4A2E; }
-    #print-header p  { font-size:13px; color:#5a6b5a; margin-top:4px; }
-    #print-map-img { display:none; width:100%; max-height:300px; object-fit:cover; border:1px solid #ccc; margin-bottom:18px; border-radius:6px; }
-
     footer { text-align:center; font-size:12px; color:var(--mu); padding:1.5rem 1rem; border-top:1px solid var(--bd); }
   </style>
 </head>
@@ -171,19 +148,10 @@
 
 <div class="wrap">
 
-  <!-- Print-only header (hidden on screen, shown on print) -->
-  <div id="print-header">
-    <h1>🌿 Rosedale Park 60-Block Yard Sale</h1>
-    <p id="print-subtitle">Participant Directory — printed <span id="print-date"></span></p>
-  </div>
-  <!-- Static map image for print (loaded on demand) -->
-  <img id="print-map-img" src="" alt="Neighborhood map" crossorigin="anonymous">
-
   <div class="toolbar">
     <button id="add-btn" onclick="openForm()">+ Register My Address</button>
     <button id="csv-btn" onclick="exportCSV()">⬇ Export CSV</button>
-    <button id="xls-btn" onclick="exportExcel()">⬇ Export Excel (.xlsx)</button>
-    <button id="pdf-btn" onclick="exportPDF()">🖨 Print / Save PDF</button>
+    <button id="xls-btn" onclick="exportExcel()">⬇ Export Excel</button>
   </div>
 
   <!-- Register form -->
@@ -276,6 +244,7 @@
 
 <footer>Rosedale Park Improvement Association &nbsp;·&nbsp; Centered on 14869 Greenview Rd, Detroit, MI 48223</footer>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 /* ─── STATE ─────────────────────────────────────────────── */
 var SK = 'rpia_ys_v4';
@@ -289,20 +258,28 @@ function save() { localStorage.setItem(SK, JSON.stringify(entries)); }
 function initMap() {
   map = L.map('map', { center:[CY,CX], zoom:14, zoomControl:true });
 
+  // Primary tile layer - CartoDB Voyager (reliable, no key needed)
   var primary = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
     attribution:'&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com">CARTO</a>',
     subdomains:'abcd', maxZoom:19
   });
+
+  // Fallback tile layer
   var fallback = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
     attribution:'&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
     maxZoom:19
   });
+
   primary.addTo(map);
   primary.on('tileerror', function(){
     if (!map.hasLayer(fallback)) { map.removeLayer(primary); fallback.addTo(map); }
   });
 
+  // 2-mile radius circle
   L.circle([CY,CX],{ radius:3219, color:'#2C4A2E', weight:2, fillColor:'#4CAF50', fillOpacity:.07, dashArray:'8,5' }).addTo(map);
+
+  // Center pin
+  var ce = document.createElement('div'); ce.className='pin-center';
   L.marker([CY,CX],{ icon:L.divIcon({ className:'', html:'<div class="pin-center"></div>', iconAnchor:[9,9] }) })
     .bindPopup('<div style="font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;color:#1d4ed8;">📍 Event Center<br><span style="font-weight:400;color:#5a6b5a;font-size:12px;">14869 Greenview Rd</span></div>')
     .addTo(map);
@@ -334,22 +311,35 @@ function dropPin(e) {
 }
 
 function buildPopup(e) {
-  var ils = e.items?e.items.split(',').map(function(s){return s.trim();}).filter(Boolean):[];
-  var fls = e.food ?e.food.split(',').map(function(s){return s.trim();}).filter(Boolean):[];
+  var ils = e.items?e.items.split(',').map(s=>s.trim()).filter(Boolean):[];
+  var fls = e.food ?e.food.split(',').map(s=>s.trim()).filter(Boolean):[];
   var c = vc(e.vendType);
   var h = '<div class="pw">'+
     '<div class="pa">'+esc(e.addr)+'</div>'+
     '<span class="pv" style="background:'+c.bg+';border:1px solid '+c.bd+';color:'+c.tx+';">'+vl(e.vendType)+'</span>';
   var meta=[e.name,e.time?'⏰ '+e.time:''].filter(Boolean);
   if(meta.length) h+='<div class="pm">'+meta.map(esc).join(' · ')+'</div>';
-  if(ils.length)  h+='<div class="pl">Items for sale:</div><div class="pts">'+ils.slice(0,8).map(function(i){return '<span class="pt gy">'+esc(i)+'</span>';}).join('')+(ils.length>8?'<span class="pt gy">+more</span>':'')+'</div>';
-  if(fls.length)  h+='<div class="pl" style="color:#92400e;">Food &amp; drinks:</div><div class="pts">'+fls.slice(0,6).map(function(i){return '<span class="pt gf">'+esc(i)+'</span>';}).join('')+'</div>';
+  if(ils.length)  h+='<div class="pl">Items for sale:</div><div class="pts">'+ils.slice(0,8).map(i=>'<span class="pt gy">'+esc(i)+'</span>').join('')+(ils.length>8?'<span class="pt gy">+more</span>':'')+'</div>';
+  if(fls.length)  h+='<div class="pl" style="color:#92400e;">Food &amp; drinks:</div><div class="pts">'+fls.slice(0,6).map(i=>'<span class="pt gf">'+esc(i)+'</span>').join('')+'</div>';
   return h+'</div>';
 }
 
 function rmPin(id){ if(mkrs[id]){ mkrs[id].remove(); delete mkrs[id]; } }
 
 /* ─── VEND TYPE ─────────────────────────────────────────── */
+function sv(t) {
+  curV=t;
+  document.querySelectorAll('.vb[data-vt]').forEach(function(b){ b.className='vb'+(b.dataset.vt===t?' a'+t[0]:''); });
+  document.getElementById('ir').style.display  = t==='food'?'none':'block';
+  document.getElementById('fr').style.display  = t==='yard'?'none':'block';
+}
+function sev(t) {
+  editV=t;
+  document.querySelectorAll('.vb[data-evt]').forEach(function(b){ b.className='vb'+(b.dataset.evt===t?' a'+t[0]:''); });
+  document.getElementById('eir').style.display = t==='food'?'none':'block';
+  document.getElementById('efr').style.display = t==='yard'?'none':'block';
+}
+// fix class for active states
 function sv(t){
   curV=t;
   document.querySelectorAll('.vb[data-vt]').forEach(function(b){
@@ -424,13 +414,13 @@ function renderAll(){
 
 function addCard(e){
   document.getElementById('list-hdr').style.display='block';
-  var ils=e.items?e.items.split(',').map(function(s){return s.trim();}).filter(Boolean):[];
-  var fls=e.food ?e.food.split(',').map(function(s){return s.trim();}).filter(Boolean):[];
+  var ils=e.items?e.items.split(',').map(s=>s.trim()).filter(Boolean):[];
+  var fls=e.food ?e.food.split(',').map(s=>s.trim()).filter(Boolean):[];
   var meta=[e.name,e.time?'⏰ '+e.time:''].filter(Boolean);
   var vt=e.vendType;
   var th='';
-  if(vt!=='food'&&ils.length) th+=ils.map(function(i){return '<span class="tag">'+esc(i)+'</span>';}).join('');
-  if(vt!=='yard'&&fls.length) th+=fls.map(function(i){return '<span class="tag fd">🍽 '+esc(i)+'</span>';}).join('');
+  if(vt!=='food'&&ils.length) th+=ils.map(i=>'<span class="tag">'+esc(i)+'</span>').join('');
+  if(vt!=='yard'&&fls.length) th+=fls.map(i=>'<span class="tag fd">🍽 '+esc(i)+'</span>').join('');
   if(!th) th='<span class="noi">No items listed yet</span>';
 
   var div=document.createElement('div');
@@ -450,14 +440,14 @@ function rebuildCard(e){
 }
 
 function focus2(id){
-  var e=entries.find(function(x){return x.id===id;}); if(!e) return;
+  var e=entries.find(x=>x.id===id); if(!e) return;
   map.flyTo([e.lat,e.lng],17);
   if(mkrs[id]) mkrs[id].openPopup();
 }
 
 /* ─── EDIT ──────────────────────────────────────────────── */
 function openEdit(id){
-  var e=entries.find(function(x){return x.id===id;}); if(!e) return;
+  var e=entries.find(x=>x.id===id); if(!e) return;
   editId=id;
   document.getElementById('ea').value=e.addr;
   document.getElementById('en').value=e.name||'';
@@ -472,7 +462,7 @@ function closeMo(){ document.getElementById('mo').style.display='none'; editId=n
 function moClick(ev){ if(ev.target===document.getElementById('mo')) closeMo(); }
 
 function saveEdit(){
-  var idx=entries.findIndex(function(x){return x.id===editId;}); if(idx<0) return;
+  var idx=entries.findIndex(x=>x.id===editId); if(idx<0) return;
   var e=entries[idx];
   e.addr    =document.getElementById('ea').value.trim()||e.addr;
   e.name    =document.getElementById('en').value.trim();
@@ -481,6 +471,7 @@ function saveEdit(){
   e.food    =document.getElementById('ef').value.trim();
   e.vendType=editV;
   save();
+  // re-geocode
   geocode(e.addr, function(err,lat,lng){
     if(!err){ e.lat=lat; e.lng=lng; save(); }
     dropPin(e); rebuildCard(e); updateCount(); closeMo();
@@ -494,104 +485,37 @@ function confirmDel(){ delEntry(editId); closeMo(); }
 function qDel(id){ if(confirm('Remove this entry from the map?')) delEntry(id); }
 function delEntry(id){
   rmPin(id);
-  entries=entries.filter(function(e){return e.id!==id;}); save();
+  entries=entries.filter(e=>e.id!==id); save();
   var c=document.getElementById('card-'+id); if(c) c.remove();
   if(!document.getElementById('list').children.length) document.getElementById('list-hdr').style.display='none';
   updateCount();
 }
 
-/* ─── EXPORT CSV ────────────────────────────────────────── */
-function dataRows(){
-  return entries.map(function(e){
-    return {
-      'Name': e.name||'',
-      'Address': e.addr,
-      'Hours': e.time||'',
-      'Selling Type': vl(e.vendType).replace(/[🏷🍽]/g,'').trim(),
-      'Items For Sale': e.items||'',
-      'Food & Drinks': e.food||'',
-      'Latitude': e.lat,
-      'Longitude': e.lng
-    };
-  });
-}
-
+/* ─── EXPORT ────────────────────────────────────────────── */
+function rows(){ return [['Name','Address','Hours','Selling Type','Items For Sale','Food & Drinks','Lat','Lng']].concat(entries.map(e=>[e.name||'',e.addr,e.time||'',vl(e.vendType),e.items||'',e.food||'',e.lat,e.lng])); }
 function exportCSV(){
   if(!entries.length){ alert('No participants yet.'); return; }
-  var hdrs=['Name','Address','Hours','Selling Type','Items For Sale','Food & Drinks','Latitude','Longitude'];
-  var rows=[hdrs].concat(entries.map(function(e){
-    return [e.name||'',e.addr,e.time||'',vl(e.vendType).replace(/[🏷🍽]/g,'').trim(),e.items||'',e.food||'',e.lat,e.lng];
-  }));
-  var csv=rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+  var csv=rows().map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
   dl('rosedale_yardsale.csv','data:text/csv;charset=utf-8,'+encodeURIComponent(csv));
 }
-
-/* ─── EXPORT EXCEL (.xlsx via SheetJS) ──────────────────── */
 function exportExcel(){
   if(!entries.length){ alert('No participants yet.'); return; }
-  if(typeof XLSX === 'undefined'){ alert('Excel library not loaded yet — please try again in a moment.'); return; }
-
-  var ws_data = [['Name','Address','Hours','Selling Type','Items For Sale','Food & Drinks','Latitude','Longitude']];
-  entries.forEach(function(e){
-    ws_data.push([
-      e.name||'', e.addr, e.time||'',
-      vl(e.vendType).replace(/[🏷🍽]/g,'').trim(),
-      e.items||'', e.food||'', e.lat, e.lng
-    ]);
-  });
-
-  var wb = XLSX.utils.book_new();
-  var ws = XLSX.utils.aoa_to_sheet(ws_data);
-
-  // Column widths
-  ws['!cols'] = [
-    {wch:22},{wch:30},{wch:16},{wch:20},{wch:40},{wch:30},{wch:12},{wch:12}
-  ];
-
-  // Style header row bold (SheetJS CE supports basic cell props)
-  var range = XLSX.utils.decode_range(ws['!ref']);
-  for(var C=range.s.c; C<=range.e.c; C++){
-    var addr = XLSX.utils.encode_cell({r:0,c:C});
-    if(!ws[addr]) continue;
-    ws[addr].s = { font:{bold:true}, fill:{fgColor:{rgb:'C8E6C9'}} };
-  }
-
-  XLSX.utils.book_append_sheet(wb, ws, 'Participants');
-  XLSX.writeFile(wb, 'rosedale_yardsale.xlsx');
+  var xml='<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Participants"><Table>';
+  rows().forEach(r=>{ xml+='<Row>'+r.map(c=>'<Cell><Data ss:Type="String">'+String(c).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</Data></Cell>').join('')+'</Row>'; });
+  xml+='</Table></Worksheet></Workbook>';
+  dl('rosedale_yardsale.xls','data:application/vnd.ms-excel;charset=utf-8,'+encodeURIComponent(xml));
 }
-
-/* ─── EXPORT PDF (print dialog) ─────────────────────────── */
-function exportPDF(){
-  if(!entries.length){ alert('No participants yet. Register some addresses first.'); return; }
-
-  // Set static map image (OpenStreetMap static tiles via bbox)
-  var mapImg = document.getElementById('print-map-img');
-  // Use a static map snapshot via OSM tile approach — bbox around center
-  // We'll use the openstreetmap.org export URL pattern
-  var bbox = [CX-0.04, CY-0.025, CX+0.04, CY+0.025];
-  mapImg.src = 'https://www.openstreetmap.org/export/embed.html?bbox='+bbox.join('%2C')+'&layer=mapnik&marker='+CY+'%2C'+CX;
-  // Use a reliable static image instead
-  mapImg.src = 'https://staticmap.openstreetmap.de/staticmap.php?center='+CY+','+CX+'&zoom=13&size=800x300&maptype=mapnik';
-
-  // Set print date
-  document.getElementById('print-date').textContent = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
-
-  // Trigger print
-  window.print();
-}
-
 function dl(name,uri){ var a=document.createElement('a'); a.href=uri; a.download=name; a.click(); }
 
 /* ─── MISC ──────────────────────────────────────────────── */
 function updateCount(){
   var n=entries.length;
   document.getElementById('cnt-badge').textContent=n+' participant'+(n!==1?'s':'');
-  document.getElementById('food-badge').style.display=entries.some(function(e){return e.vendType==='food'||e.vendType==='both';}) ? 'block':'none';
+  document.getElementById('food-badge').style.display=entries.some(e=>e.vendType==='food'||e.vendType==='both')?'block':'none';
 }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 /* ─── BOOT ──────────────────────────────────────────────── */
-// L is guaranteed defined here because Leaflet JS is in <head>
 window.addEventListener('DOMContentLoaded', function(){
   load(); initMap(); renderAll(); updateCount();
 });
