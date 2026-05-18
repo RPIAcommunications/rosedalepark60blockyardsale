@@ -9,6 +9,7 @@
   <title>Rosedale Park 60-Block Yard Sale</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
@@ -55,27 +56,27 @@
     .bp:disabled { background:#aaa; cursor:not-allowed; }
     .bc { padding:10px 16px; background:transparent; border:1px solid var(--bd); border-radius:var(--r); font-family:'DM Sans',sans-serif; font-size:14px; color:var(--mu); cursor:pointer; }
     #reg-msg { font-size:12px; margin-top:8px; display:none; padding:8px 12px; border-radius:var(--r); }
-    #reg-msg.ok  { background:#f0fdf4; color:#166534; border:1px solid #86efac; }
-    #reg-msg.err { background:#fff5f5; color:var(--dg); border:1px solid #fca5a5; }
-    #reg-msg.warn{ background:#fffbeb; color:#92400e; border:1px solid var(--fbr); }
+    #reg-msg.ok   { background:#f0fdf4; color:#166534; border:1px solid #86efac; }
+    #reg-msg.err  { background:#fff5f5; color:var(--dg); border:1px solid #fca5a5; }
+    #reg-msg.warn { background:#fffbeb; color:#92400e; border:1px solid var(--fbr); }
     #map { width:100%; height:520px; min-height:520px; border-radius:var(--rl); border:1px solid var(--bd); margin-bottom:1rem; display:block; }
     @media(min-width:700px){ #map { height:580px; min-height:580px; } }
     .pin { width:28px; height:28px; border-radius:50% 50% 50% 0; transform:rotate(-45deg); border:2px solid rgba(255,255,255,.9); box-shadow:0 2px 6px rgba(0,0,0,.35); cursor:pointer; }
-    .pin.yard { background:var(--gd); }
-    .pin.food { background:var(--ft); }
-    .pin.both { background:var(--bt); }
+    .pin.yard { background:#2C4A2E; }
+    .pin.food { background:#92400e; }
+    .pin.both { background:#4c1d95; }
     .pin-center { width:18px; height:18px; border-radius:50%; background:#1d4ed8; border:3px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.4); }
     .leaflet-popup-content-wrapper { border-radius:14px !important; box-shadow:0 4px 20px rgba(0,0,0,.15) !important; }
     .leaflet-popup-content { margin:14px 16px !important; font-family:'DM Sans',sans-serif; }
     .pw { max-width:250px; }
-    .pw .pa { font-size:14px; font-weight:600; color:var(--gd); margin-bottom:5px; }
+    .pw .pa { font-size:14px; font-weight:600; color:#2C4A2E; margin-bottom:5px; }
     .pw .pv { font-size:11px; font-weight:500; padding:2px 9px; border-radius:20px; display:inline-block; margin-bottom:6px; }
-    .pw .pm { font-size:12px; color:var(--mu); margin-bottom:5px; }
-    .pw .pl { font-size:11px; font-weight:600; color:var(--mu); margin-bottom:3px; }
+    .pw .pm { font-size:12px; color:#5a6b5a; margin-bottom:5px; }
+    .pw .pl { font-size:11px; font-weight:600; color:#5a6b5a; margin-bottom:3px; }
     .pw .pts { display:flex; flex-wrap:wrap; gap:3px; margin-bottom:5px; }
     .pw .pt  { font-size:11px; padding:2px 8px; border-radius:20px; }
-    .pt.gy { background:var(--gp); color:var(--gd); border:1px solid #c3dfc5; }
-    .pt.gf { background:var(--fb); color:var(--ft); border:1px solid var(--fbr); }
+    .pt.gy { background:#E8F5E9; color:#2C4A2E; border:1px solid #c3dfc5; }
+    .pt.gf { background:#fef3c7; color:#92400e; border:1px solid #fcd34d; }
     .legend { background:var(--cd); border:1px solid var(--bd); border-radius:var(--r); padding:8px 14px; display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--mu); margin-bottom:1rem; align-items:center; }
     .ld { width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:4px; vertical-align:middle; }
     #list-hdr { font-size:15px; font-weight:500; color:var(--gd); margin-bottom:10px; display:none; }
@@ -124,7 +125,7 @@
       #list { display:block; }
       .card { border:1px solid #ccc; border-radius:0; margin-bottom:10px; page-break-inside:avoid; padding:10px 14px; box-shadow:none; }
       .card:hover { border-color:#ccc; box-shadow:none; }
-      .ca { color:#2C4A2E; text-decoration:none; }
+      .ca { color:#2C4A2E; }
     }
     #print-header { display:none; padding:0 0 16px 0; border-bottom:2px solid #2C4A2E; margin-bottom:18px; }
     #print-header h1 { font-family:'Playfair Display',serif; font-size:22px; color:#2C4A2E; }
@@ -136,26 +137,26 @@
 
 <header>
   <div>
-    <h1>🌿 Rosedale Park 60-Block Yard Sale</h1>
+    <h1>&#127807; Rosedale Park 60-Block Yard Sale</h1>
     <p>Register your address &amp; list your items for sale</p>
   </div>
   <div class="hb">
     <div class="badge" id="cnt-badge">0 participants</div>
-    <div class="badge" id="food-badge">🍽 Food available</div>
+    <div class="badge" id="food-badge">&#127869; Food available</div>
   </div>
 </header>
 
 <div class="wrap">
   <div id="print-header">
-    <h1>🌿 Rosedale Park 60-Block Yard Sale</h1>
-    <p>Participant Directory — printed <span id="print-date"></span></p>
+    <h1>&#127807; Rosedale Park 60-Block Yard Sale</h1>
+    <p>Participant Directory &mdash; printed <span id="print-date"></span></p>
   </div>
 
   <div class="toolbar">
     <button id="add-btn" onclick="openForm()">+ Register My Address</button>
-    <button id="csv-btn" onclick="exportCSV()">⬇ Export CSV</button>
-    <button id="xls-btn" onclick="exportExcel()">⬇ Export Excel (.xlsx)</button>
-    <button id="pdf-btn" onclick="exportPDF()">🖨 Print / Save PDF</button>
+    <button id="csv-btn" onclick="exportCSV()">&#8595; Export CSV</button>
+    <button id="xls-btn" onclick="exportExcel()">&#8595; Export Excel (.xlsx)</button>
+    <button id="pdf-btn" onclick="exportPDF()">&#128424; Print / Save PDF</button>
   </div>
 
   <div id="reg-panel">
@@ -171,28 +172,28 @@
       </div>
       <div>
         <label for="it">Hours (optional)</label>
-        <input id="it" type="text" placeholder="e.g. 8am – 2pm">
+        <input id="it" type="text" placeholder="e.g. 8am - 2pm">
       </div>
       <div class="f">
         <label>What are you selling? *</label>
         <div class="vg">
-          <button type="button" class="vb ay" data-vt="yard" onclick="sv('yard')">🏷 Yard Sale Items</button>
-          <button type="button" class="vb"    data-vt="food" onclick="sv('food')">🍽 Food &amp; Drinks</button>
-          <button type="button" class="vb"    data-vt="both" onclick="sv('both')">🏷🍽 Both</button>
+          <button type="button" class="vb ay" data-vt="yard" onclick="sv('yard')">&#127991; Yard Sale Items</button>
+          <button type="button" class="vb"    data-vt="food" onclick="sv('food')">&#127869; Food &amp; Drinks</button>
+          <button type="button" class="vb"    data-vt="both" onclick="sv('both')">&#127991;&#127869; Both</button>
         </div>
       </div>
       <div class="f" id="ir">
-        <label for="ii">Items for sale — separate with commas</label>
+        <label for="ii">Items for sale &mdash; separate with commas</label>
         <textarea id="ii" rows="3" placeholder="e.g. furniture, kids clothes, tools, books, electronics, plants"></textarea>
       </div>
       <div class="f" id="fr" style="display:none;">
-        <label for="if2">Food &amp; drinks — separate with commas</label>
+        <label for="if2">Food &amp; drinks &mdash; separate with commas</label>
         <textarea id="if2" rows="2" placeholder="e.g. BBQ plates, lemonade, baked goods, tamales"></textarea>
       </div>
     </div>
     <div id="reg-msg"></div>
     <div class="fa">
-      <button class="bp" id="sub-btn" onclick="register()">📍 Add to Map</button>
+      <button class="bp" id="sub-btn" onclick="register()">&#128205; Add to Map</button>
       <button class="bc" onclick="closeForm()">Cancel</button>
     </div>
   </div>
@@ -213,7 +214,7 @@
 
 <div id="mo" onclick="moClick(event)">
   <div id="mb">
-    <button id="mc" onclick="closeMo()">×</button>
+    <button id="mc" onclick="closeMo()">&times;</button>
     <div id="mt">Edit entry</div>
     <div class="mfg">
       <div class="f"><label>Street address</label><input id="ea" type="text"></div>
@@ -222,9 +223,9 @@
       <div class="f">
         <label>What are you selling?</label>
         <div class="vg">
-          <button type="button" class="vb" data-evt="yard" onclick="sev('yard')">🏷 Yard Sale</button>
-          <button type="button" class="vb" data-evt="food" onclick="sev('food')">🍽 Food</button>
-          <button type="button" class="vb" data-evt="both" onclick="sev('both')">🏷🍽 Both</button>
+          <button type="button" class="vb" data-evt="yard" onclick="sev('yard')">&#127991; Yard Sale</button>
+          <button type="button" class="vb" data-evt="food" onclick="sev('food')">&#127869; Food</button>
+          <button type="button" class="vb" data-evt="both" onclick="sev('both')">&#127991;&#127869; Both</button>
         </div>
       </div>
       <div class="f" id="eir"><label>Items for sale</label><textarea id="ei" rows="3"></textarea></div>
@@ -244,270 +245,307 @@
   </div>
 </div>
 
-<footer>Rosedale Park Improvement Association &nbsp;·&nbsp; Centered on 14869 Greenview Rd, Detroit, MI 48223</footer>
+<footer>Rosedale Park Improvement Association &nbsp;&middot;&nbsp; Centered on 14869 Greenview Rd, Detroit, MI 48223</footer>
 
 <script>
-var SK = 'rpia_ys_v5_google';
+/* ---- STATE ---- */
+var SK = 'rpia_ys_v6';
 var entries = [], mkrs = {}, map, curV = 'yard', editV = 'yard', editId = null;
-var CY = 42.38060, CX = -83.24410;
+var CY = 42.39705, CX = -83.22423;
 
-function load() { try { entries = JSON.parse(localStorage.getItem(SK))||[]; } catch(e){ entries=[]; } }
-function save() { localStorage.setItem(SK, JSON.stringify(entries)); }
-
-function initMap() {
-  map = L.map('map', { center:[CY,CX], zoom:14, zoomControl:true });
-
-  // Google Maps tiles — same street map style as Google Maps
-  L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-    attribution: 'Map data &copy; <a href="https://www.google.com/maps">Google</a>',
-    subdomains: ['0','1','2','3'],
-    maxZoom: 21,
-    tileSize: 256
-  }).addTo(map);
-
-  // Invalidate size at multiple intervals to handle file:/// rendering delays
-  setTimeout(function(){ map.invalidateSize(); }, 100);
-  setTimeout(function(){ map.invalidateSize(); }, 500);
-  setTimeout(function(){ map.invalidateSize(); }, 1200);
-
-  L.circle([CY,CX],{ radius:3219, color:'#2C4A2E', weight:2, fillColor:'#4CAF50', fillOpacity:.07, dashArray:'8,5' }).addTo(map);
-  L.marker([CY,CX],{ icon:L.divIcon({ className:'', html:'<div class="pin-center"></div>', iconAnchor:[9,9] }) })
-    .bindPopup('<div style="font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;color:#1d4ed8;">&#128205; Event Center<br><span style="font-weight:400;color:#5a6b5a;font-size:12px;">14869 Greenview Rd</span></div>')
-    .addTo(map);
-
-  entries.forEach(dropPin);
-}
-
-function geocode(addr, cb) {
-  var q = encodeURIComponent(addr + ', Detroit, MI 48223');
-  fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+q+'&countrycodes=us',
-        { headers:{'Accept-Language':'en'} })
-    .then(function(r){ return r.json(); })
-    .then(function(d){ d&&d.length ? cb(null,+d[0].lat,+d[0].lon) : cb('notfound'); })
-    .catch(function(){ cb('error'); });
-}
-
-function vl(vt){ return vt==='food'?'Food & Drinks':vt==='both'?'Yard Sale + Food':'Yard Sale'; }
-function vc(vt){ return vt==='food'?{bg:'#fef3c7',bd:'#fcd34d',tx:'#92400e'}:vt==='both'?{bg:'#ede9fe',bd:'#c4b5fd',tx:'#4c1d95'}:{bg:'#E8F5E9',bd:'#c3dfc5',tx:'#2C4A2E'}; }
-
-function dropPin(e) {
-  if (mkrs[e.id]) { mkrs[e.id].remove(); }
-  var el = document.createElement('div'); el.className='pin '+e.vendType;
-  var icon = L.divIcon({ className:'', html:el.outerHTML, iconAnchor:[14,28] });
-  var popup = L.popup({ maxWidth:280, offset:[0,-24] }).setContent(buildPopup(e));
-  var m = L.marker([e.lat,e.lng],{ icon:icon }).bindPopup(popup).addTo(map);
-  mkrs[e.id] = m;
-}
-
-function buildPopup(e) {
-  var ils = e.items?e.items.split(',').map(function(s){return s.trim();}).filter(Boolean):[];
-  var fls = e.food ?e.food.split(',').map(function(s){return s.trim();}).filter(Boolean):[];
-  var c = vc(e.vendType);
-  var h = '<div class="pw">'+
-    '<div class="pa">'+esc(e.addr)+'</div>'+
-    '<span class="pv" style="background:'+c.bg+';border:1px solid '+c.bd+';color:'+c.tx+';">'+vl(e.vendType)+'</span>';
-  var meta=[e.name,e.time?'&#9200; '+e.time:''].filter(Boolean);
-  if(meta.length) h+='<div class="pm">'+meta.map(esc).join(' &middot; ')+'</div>';
-  if(ils.length)  h+='<div class="pl">Items for sale:</div><div class="pts">'+ils.slice(0,8).map(function(i){return '<span class="pt gy">'+esc(i)+'</span>';}).join('')+(ils.length>8?'<span class="pt gy">+more</span>':'')+'</div>';
-  if(fls.length)  h+='<div class="pl" style="color:#92400e;">Food &amp; drinks:</div><div class="pts">'+fls.slice(0,6).map(function(i){return '<span class="pt gf">'+esc(i)+'</span>';}).join('')+'</div>';
-  return h+'</div>';
-}
-
-function rmPin(id){ if(mkrs[id]){ mkrs[id].remove(); delete mkrs[id]; } }
-
-function sv(t){
-  curV=t;
-  document.querySelectorAll('.vb[data-vt]').forEach(function(b){
-    var cls='vb'; if(b.dataset.vt===t){ cls+= t==='yard'?' ay':t==='food'?' af':' ab'; } b.className=cls;
-  });
-  document.getElementById('ir').style.display = t==='food'?'none':'block';
-  document.getElementById('fr').style.display = t==='yard'?'none':'block';
-}
-function sev(t){
-  editV=t;
-  document.querySelectorAll('.vb[data-evt]').forEach(function(b){
-    var cls='vb'; if(b.dataset.evt===t){ cls+= t==='yard'?' ay':t==='food'?' af':' ab'; } b.className=cls;
-  });
-  document.getElementById('eir').style.display = t==='food'?'none':'block';
-  document.getElementById('efr').style.display = t==='yard'?'none':'block';
-}
-
-function openForm(){
-  document.getElementById('reg-panel').style.display='block';
-  document.getElementById('add-btn').style.display='none';
-  document.getElementById('ia').focus();
-}
-function closeForm(){
-  document.getElementById('reg-panel').style.display='none';
-  document.getElementById('add-btn').style.display='block';
-  setMsg('','');
-}
-function setMsg(txt,cls){
-  var el=document.getElementById('reg-msg');
-  el.textContent=txt; el.className=cls; el.style.display=txt?'block':'none';
-}
-
-function register(){
-  var addr=document.getElementById('ia').value.trim();
-  var name=document.getElementById('in').value.trim();
-  var time=document.getElementById('it').value.trim();
-  var items=document.getElementById('ii').value.trim();
-  var food=document.getElementById('if2').value.trim();
-  if(!addr){ setMsg('Please enter your street address.','err'); return; }
-  setMsg('','');
-  var btn=document.getElementById('sub-btn');
-  btn.textContent='Locating address...'; btn.disabled=true;
-  geocode(addr, function(err,lat,lng){
-    btn.textContent='Add to Map'; btn.disabled=false;
-    var approx=false;
-    if(err){
-      var a=Math.random()*2*Math.PI, d=0.006+Math.random()*0.012;
-      lat=CY+d*Math.cos(a); lng=CX+d*Math.sin(a)*1.3; approx=true;
-    }
-    var e={ id:Date.now(), addr:addr, name:name, time:time, items:items, food:food, vendType:curV, lat:lat, lng:lng };
-    entries.push(e); save(); dropPin(e); addCard(e); updateCount();
-    ['ia','in','it'].forEach(function(id){ document.getElementById(id).value=''; });
-    document.getElementById('ii').value=''; document.getElementById('if2').value='';
-    if(approx){
-      setMsg('Could not find exact address - placed approximately. Try editing if needed.','warn');
-    } else {
-      setMsg('You are on the map!','ok');
-      map.flyTo([lat,lng],17);
-      setTimeout(closeForm,1600);
-    }
-  });
-}
-
-function renderAll(){
-  document.getElementById('list').innerHTML='';
-  entries.forEach(addCard);
-  document.getElementById('list-hdr').style.display=entries.length?'block':'none';
-}
-
-function addCard(e){
-  document.getElementById('list-hdr').style.display='block';
-  var ils=e.items?e.items.split(',').map(function(s){return s.trim();}).filter(Boolean):[];
-  var fls=e.food ?e.food.split(',').map(function(s){return s.trim();}).filter(Boolean):[];
-  var meta=[e.name,e.time?'&#9200; '+e.time:''].filter(Boolean);
-  var vt=e.vendType;
-  var th='';
-  if(vt!=='food'&&ils.length) th+=ils.map(function(i){return '<span class="tag">'+esc(i)+'</span>';}).join('');
-  if(vt!=='yard'&&fls.length) th+=fls.map(function(i){return '<span class="tag fd">'+esc(i)+'</span>';}).join('');
-  if(!th) th='<span class="noi">No items listed yet</span>';
-  var div=document.createElement('div');
-  div.className='card'; div.id='card-'+e.id;
-  div.innerHTML='<div class="ct">'+
-    '<div class="ca" onclick="focus2('+e.id+')">'+esc(e.addr)+'</div>'+
-    '<div class="cbtns"><button class="cbtn" onclick="openEdit('+e.id+')">Edit</button>'+
-    '<button class="cbtn del" onclick="qDel('+e.id+')">Delete</button></div></div>'+
-    '<span class="vbadge '+vt+'">'+vl(vt)+'</span>'+
-    (meta.length?'<div class="cm">'+meta.join(' &middot; ')+'</div>':'')+
-    '<div class="tags">'+th+'</div>';
-  document.getElementById('list').appendChild(div);
-}
-
-function rebuildCard(e){ var old=document.getElementById('card-'+e.id); if(old) old.remove(); addCard(e); }
-
-function focus2(id){
-  var e=entries.find(function(x){return x.id===id;}); if(!e) return;
-  map.flyTo([e.lat,e.lng],17);
-  if(mkrs[id]) mkrs[id].openPopup();
-}
-
-function openEdit(id){
-  var e=entries.find(function(x){return x.id===id;}); if(!e) return;
-  editId=id;
-  document.getElementById('ea').value=e.addr;
-  document.getElementById('en').value=e.name||'';
-  document.getElementById('et').value=e.time||'';
-  document.getElementById('ei').value=e.items||'';
-  document.getElementById('ef').value=e.food||'';
-  sev(e.vendType||'yard');
-  document.getElementById('dc').style.display='none';
-  document.getElementById('mo').style.display='flex';
-}
-function closeMo(){ document.getElementById('mo').style.display='none'; editId=null; }
-function moClick(ev){ if(ev.target===document.getElementById('mo')) closeMo(); }
-
-function saveEdit(){
-  var idx=entries.findIndex(function(x){return x.id===editId;}); if(idx<0) return;
-  var e=entries[idx];
-  e.addr    =document.getElementById('ea').value.trim()||e.addr;
-  e.name    =document.getElementById('en').value.trim();
-  e.time    =document.getElementById('et').value.trim();
-  e.items   =document.getElementById('ei').value.trim();
-  e.food    =document.getElementById('ef').value.trim();
-  e.vendType=editV;
-  save();
-  geocode(e.addr, function(err,lat,lng){
-    if(!err){ e.lat=lat; e.lng=lng; save(); }
-    dropPin(e); rebuildCard(e); updateCount(); closeMo();
-  });
-}
-
-function showDC(){ document.getElementById('dc').style.display='block'; }
-function hideDC(){ document.getElementById('dc').style.display='none'; }
-function confirmDel(){ delEntry(editId); closeMo(); }
-function qDel(id){ if(confirm('Remove this entry from the map?')) delEntry(id); }
-function delEntry(id){
-  rmPin(id);
-  entries=entries.filter(function(e){return e.id!==id;}); save();
-  var c=document.getElementById('card-'+id); if(c) c.remove();
-  if(!document.getElementById('list').children.length) document.getElementById('list-hdr').style.display='none';
-  updateCount();
-}
-
-function exportCSV(){
-  if(!entries.length){ alert('No participants yet.'); return; }
-  var hdrs=['Name','Address','Hours','Selling Type','Items For Sale','Food & Drinks','Latitude','Longitude'];
-  var rows=[hdrs].concat(entries.map(function(e){
-    return [e.name||'',e.addr,e.time||'',vl(e.vendType),e.items||'',e.food||'',e.lat,e.lng];
-  }));
-  var csv=rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
-  dl('rosedale_yardsale.csv','data:text/csv;charset=utf-8,'+encodeURIComponent(csv));
-}
-
-function exportExcel(){
-  if(!entries.length){ alert('No participants yet.'); return; }
-  if(typeof XLSX==='undefined'){ alert('Excel library not loaded yet - please try again.'); return; }
-  var ws_data=[['Name','Address','Hours','Selling Type','Items For Sale','Food & Drinks','Latitude','Longitude']];
-  entries.forEach(function(e){
-    ws_data.push([e.name||'',e.addr,e.time||'',vl(e.vendType),e.items||'',e.food||'',e.lat,e.lng]);
-  });
-  var wb=XLSX.utils.book_new();
-  var ws=XLSX.utils.aoa_to_sheet(ws_data);
-  ws['!cols']=[{wch:22},{wch:30},{wch:16},{wch:20},{wch:40},{wch:30},{wch:12},{wch:12}];
-  XLSX.utils.book_append_sheet(wb,ws,'Participants');
-  XLSX.writeFile(wb,'rosedale_yardsale.xlsx');
-}
-
-function exportPDF(){
-  if(!entries.length){ alert('No participants yet.'); return; }
-  document.getElementById('print-date').textContent=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
-  window.print();
-}
-
-function dl(name,uri){ var a=document.createElement('a'); a.href=uri; a.download=name; a.click(); }
-
-function updateCount(){
-  var n=entries.length;
-  document.getElementById('cnt-badge').textContent=n+' participant'+(n!==1?'s':'');
-  document.getElementById('food-badge').style.display=entries.some(function(e){return e.vendType==='food'||e.vendType==='both';}) ? 'block':'none';
-}
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-window.addEventListener('DOMContentLoaded', function(){
-  // Always force Google Maps tiles — clear any cached tile preference
-  try { localStorage.removeItem('leaflet.tileLayer'); } catch(e){}
-  // Wipe any old rpia keys that may have stored OSM tile state
-  ['rpia_ys_v4','rpia_ys_v3','rpia_ys_v2','rpia_ys_v1'].forEach(function(k){
-    // Migrate entries from old key if present, then remove
-    if(!localStorage.getItem(SK) && localStorage.getItem(k)){
+function load() {
+  // Migrate from any previous key
+  var oldKeys = ['rpia_ys_v5_google','rpia_ys_v4','rpia_ys_v3','rpia_ys_v2','rpia_ys_v1'];
+  oldKeys.forEach(function(k) {
+    if (!localStorage.getItem(SK) && localStorage.getItem(k)) {
       localStorage.setItem(SK, localStorage.getItem(k));
     }
     localStorage.removeItem(k);
   });
-  load(); initMap(); renderAll(); updateCount();
+  try { entries = JSON.parse(localStorage.getItem(SK)) || []; } catch(e) { entries = []; }
+}
+function save() { localStorage.setItem(SK, JSON.stringify(entries)); }
+
+/* ---- MAP: Esri/ArcGIS World Street Map — free, no API key, always works ---- */
+function initMap() {
+  map = L.map('map', { center:[CY,CX], zoom:14, zoomControl:true });
+
+  // Esri World Street Map — detailed, free, no key required, consistent every load
+  L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+    {
+      attribution: 'Tiles &copy; <a href="https://www.esri.com">Esri</a>, HERE, Garmin, USGS, Intermap, INCREMENT P, NRCan, Esri Japan, METI, Esri China, OpenStreetMap, GIS User Community',
+      maxZoom: 19
+    }
+  ).addTo(map);
+
+  // Invalidate size to fix any container-dimension issues on file:// loads
+  setTimeout(function(){ map.invalidateSize(); }, 150);
+  setTimeout(function(){ map.invalidateSize(); }, 600);
+
+  // 1-mile radius circle around event center
+  L.circle([CY,CX], {
+    radius: 1609,
+    color: '#2C4A2E',
+    weight: 2,
+    fillColor: '#4CAF50',
+    fillOpacity: 0.07,
+    dashArray: '8,5'
+  }).addTo(map);
+
+  // Event center marker
+  L.marker([CY,CX], {
+    icon: L.divIcon({ className:'', html:'<div class="pin-center"></div>', iconAnchor:[9,9] })
+  }).bindPopup(
+    '<div style="font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;color:#1d4ed8;">' +
+    '&#128205; Event Center<br>' +
+    '<span style="font-weight:400;color:#5a6b5a;font-size:12px;">14869 Greenview Rd</span></div>'
+  ).addTo(map);
+
+  entries.forEach(dropPin);
+}
+
+/* ---- GEOCODE ---- */
+function geocode(addr, cb) {
+  var q = encodeURIComponent(addr + ', Detroit, MI 48223');
+  fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + q + '&countrycodes=us',
+        { headers: { 'Accept-Language': 'en' } })
+    .then(function(r) { return r.json(); })
+    .then(function(d) { d && d.length ? cb(null, +d[0].lat, +d[0].lon) : cb('notfound'); })
+    .catch(function() { cb('error'); });
+}
+
+/* ---- PINS ---- */
+function vl(vt) { return vt==='food' ? 'Food & Drinks' : vt==='both' ? 'Yard Sale + Food' : 'Yard Sale'; }
+function vc(vt) {
+  if (vt==='food') return {bg:'#fef3c7',bd:'#fcd34d',tx:'#92400e'};
+  if (vt==='both') return {bg:'#ede9fe',bd:'#c4b5fd',tx:'#4c1d95'};
+  return {bg:'#E8F5E9',bd:'#c3dfc5',tx:'#2C4A2E'};
+}
+
+function dropPin(e) {
+  if (mkrs[e.id]) { mkrs[e.id].remove(); }
+  var el = document.createElement('div');
+  el.className = 'pin ' + e.vendType;
+  var icon = L.divIcon({ className:'', html:el.outerHTML, iconAnchor:[14,28] });
+  var popup = L.popup({ maxWidth:280, offset:[0,-24] }).setContent(buildPopup(e));
+  mkrs[e.id] = L.marker([e.lat,e.lng], { icon:icon }).bindPopup(popup).addTo(map);
+}
+
+function buildPopup(e) {
+  var ils = e.items ? e.items.split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
+  var fls = e.food  ? e.food.split(',').map(function(s){return s.trim();}).filter(Boolean)  : [];
+  var c = vc(e.vendType);
+  var h = '<div class="pw">' +
+    '<div class="pa">' + esc(e.addr) + '</div>' +
+    '<span class="pv" style="background:' + c.bg + ';border:1px solid ' + c.bd + ';color:' + c.tx + ';">' + vl(e.vendType) + '</span>';
+  var meta = [e.name, e.time ? '&#9200; ' + e.time : ''].filter(Boolean);
+  if (meta.length) h += '<div class="pm">' + meta.map(esc).join(' &middot; ') + '</div>';
+  if (ils.length)  h += '<div class="pl">Items for sale:</div><div class="pts">' + ils.slice(0,8).map(function(i){return '<span class="pt gy">'+esc(i)+'</span>';}).join('') + (ils.length>8?'<span class="pt gy">+more</span>':'') + '</div>';
+  if (fls.length)  h += '<div class="pl" style="color:#92400e;">Food &amp; drinks:</div><div class="pts">' + fls.slice(0,6).map(function(i){return '<span class="pt gf">'+esc(i)+'</span>';}).join('') + '</div>';
+  return h + '</div>';
+}
+
+function rmPin(id) { if (mkrs[id]) { mkrs[id].remove(); delete mkrs[id]; } }
+
+/* ---- VEND TYPE ---- */
+function sv(t) {
+  curV = t;
+  document.querySelectorAll('.vb[data-vt]').forEach(function(b) {
+    var cls = 'vb'; if (b.dataset.vt===t) cls += t==='yard'?' ay':t==='food'?' af':' ab'; b.className = cls;
+  });
+  document.getElementById('ir').style.display = t==='food' ? 'none' : 'block';
+  document.getElementById('fr').style.display = t==='yard' ? 'none' : 'block';
+}
+function sev(t) {
+  editV = t;
+  document.querySelectorAll('.vb[data-evt]').forEach(function(b) {
+    var cls = 'vb'; if (b.dataset.evt===t) cls += t==='yard'?' ay':t==='food'?' af':' ab'; b.className = cls;
+  });
+  document.getElementById('eir').style.display = t==='food' ? 'none' : 'block';
+  document.getElementById('efr').style.display = t==='yard' ? 'none' : 'block';
+}
+
+/* ---- FORM ---- */
+function openForm() {
+  document.getElementById('reg-panel').style.display = 'block';
+  document.getElementById('add-btn').style.display = 'none';
+  document.getElementById('ia').focus();
+}
+function closeForm() {
+  document.getElementById('reg-panel').style.display = 'none';
+  document.getElementById('add-btn').style.display = 'block';
+  setMsg('','');
+}
+function setMsg(txt, cls) {
+  var el = document.getElementById('reg-msg');
+  el.textContent = txt; el.className = cls; el.style.display = txt ? 'block' : 'none';
+}
+
+function register() {
+  var addr  = document.getElementById('ia').value.trim();
+  var name  = document.getElementById('in').value.trim();
+  var time  = document.getElementById('it').value.trim();
+  var items = document.getElementById('ii').value.trim();
+  var food  = document.getElementById('if2').value.trim();
+  if (!addr) { setMsg('Please enter your street address.','err'); return; }
+  setMsg('','');
+  var btn = document.getElementById('sub-btn');
+  btn.textContent = 'Locating address...'; btn.disabled = true;
+  geocode(addr, function(err, lat, lng) {
+    btn.textContent = 'Add to Map'; btn.disabled = false;
+    var approx = false;
+    if (err) {
+      var a = Math.random()*2*Math.PI, d = 0.006 + Math.random()*0.012;
+      lat = CY + d*Math.cos(a); lng = CX + d*Math.sin(a)*1.3; approx = true;
+    }
+    var e = { id:Date.now(), addr:addr, name:name, time:time, items:items, food:food, vendType:curV, lat:lat, lng:lng };
+    entries.push(e); save(); dropPin(e); addCard(e); updateCount();
+    ['ia','in','it'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('ii').value = ''; document.getElementById('if2').value = '';
+    if (approx) {
+      setMsg('Could not find exact address - placed approximately in the neighborhood.','warn');
+    } else {
+      setMsg('You are on the map!','ok');
+      map.flyTo([lat,lng], 17);
+      setTimeout(closeForm, 1600);
+    }
+  });
+}
+
+/* ---- CARDS ---- */
+function renderAll() {
+  document.getElementById('list').innerHTML = '';
+  entries.forEach(addCard);
+  document.getElementById('list-hdr').style.display = entries.length ? 'block' : 'none';
+}
+
+function addCard(e) {
+  document.getElementById('list-hdr').style.display = 'block';
+  var ils = e.items ? e.items.split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
+  var fls = e.food  ? e.food.split(',').map(function(s){return s.trim();}).filter(Boolean)  : [];
+  var meta = [e.name, e.time ? '&#9200; '+e.time : ''].filter(Boolean);
+  var vt = e.vendType, th = '';
+  if (vt!=='food' && ils.length) th += ils.map(function(i){return '<span class="tag">'+esc(i)+'</span>';}).join('');
+  if (vt!=='yard' && fls.length) th += fls.map(function(i){return '<span class="tag fd">'+esc(i)+'</span>';}).join('');
+  if (!th) th = '<span class="noi">No items listed yet</span>';
+  var div = document.createElement('div');
+  div.className = 'card'; div.id = 'card-' + e.id;
+  div.innerHTML =
+    '<div class="ct">' +
+      '<div class="ca" onclick="focus2('+e.id+')">'+esc(e.addr)+'</div>' +
+      '<div class="cbtns">' +
+        '<button class="cbtn" onclick="openEdit('+e.id+')">Edit</button>' +
+        '<button class="cbtn del" onclick="qDel('+e.id+')">Delete</button>' +
+      '</div>' +
+    '</div>' +
+    '<span class="vbadge '+vt+'">'+vl(vt)+'</span>' +
+    (meta.length ? '<div class="cm">'+meta.join(' &middot; ')+'</div>' : '') +
+    '<div class="tags">'+th+'</div>';
+  document.getElementById('list').appendChild(div);
+}
+
+function rebuildCard(e) { var old = document.getElementById('card-'+e.id); if(old) old.remove(); addCard(e); }
+
+function focus2(id) {
+  var e = entries.find(function(x){return x.id===id;}); if(!e) return;
+  map.flyTo([e.lat,e.lng], 17);
+  if (mkrs[id]) mkrs[id].openPopup();
+}
+
+/* ---- EDIT MODAL ---- */
+function openEdit(id) {
+  var e = entries.find(function(x){return x.id===id;}); if(!e) return;
+  editId = id;
+  document.getElementById('ea').value = e.addr;
+  document.getElementById('en').value = e.name  || '';
+  document.getElementById('et').value = e.time  || '';
+  document.getElementById('ei').value = e.items || '';
+  document.getElementById('ef').value = e.food  || '';
+  sev(e.vendType || 'yard');
+  document.getElementById('dc').style.display = 'none';
+  document.getElementById('mo').style.display = 'flex';
+}
+function closeMo() { document.getElementById('mo').style.display = 'none'; editId = null; }
+function moClick(ev) { if (ev.target === document.getElementById('mo')) closeMo(); }
+
+function saveEdit() {
+  var idx = entries.findIndex(function(x){return x.id===editId;}); if(idx<0) return;
+  var e = entries[idx];
+  e.addr     = document.getElementById('ea').value.trim() || e.addr;
+  e.name     = document.getElementById('en').value.trim();
+  e.time     = document.getElementById('et').value.trim();
+  e.items    = document.getElementById('ei').value.trim();
+  e.food     = document.getElementById('ef').value.trim();
+  e.vendType = editV;
+  save();
+  geocode(e.addr, function(err, lat, lng) {
+    if (!err) { e.lat = lat; e.lng = lng; save(); }
+    dropPin(e); rebuildCard(e); updateCount(); closeMo();
+  });
+}
+
+/* ---- DELETE ---- */
+function showDC() { document.getElementById('dc').style.display = 'block'; }
+function hideDC() { document.getElementById('dc').style.display = 'none'; }
+function confirmDel() { delEntry(editId); closeMo(); }
+function qDel(id) { if (confirm('Remove this entry from the map?')) delEntry(id); }
+function delEntry(id) {
+  rmPin(id);
+  entries = entries.filter(function(e){return e.id!==id;}); save();
+  var c = document.getElementById('card-'+id); if(c) c.remove();
+  if (!document.getElementById('list').children.length) document.getElementById('list-hdr').style.display = 'none';
+  updateCount();
+}
+
+/* ---- EXPORT CSV ---- */
+function exportCSV() {
+  if (!entries.length) { alert('No participants yet.'); return; }
+  var hdrs = ['Name','Address','Hours','Selling Type','Items For Sale','Food & Drinks','Latitude','Longitude'];
+  var rows = [hdrs].concat(entries.map(function(e){
+    return [e.name||'', e.addr, e.time||'', vl(e.vendType), e.items||'', e.food||'', e.lat, e.lng];
+  }));
+  var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+  dl('rosedale_yardsale.csv', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
+}
+
+/* ---- EXPORT EXCEL ---- */
+function exportExcel() {
+  if (!entries.length) { alert('No participants yet.'); return; }
+  if (typeof XLSX === 'undefined') { alert('Excel library not loaded yet - please try again.'); return; }
+  var data = [['Name','Address','Hours','Selling Type','Items For Sale','Food & Drinks','Latitude','Longitude']];
+  entries.forEach(function(e){
+    data.push([e.name||'', e.addr, e.time||'', vl(e.vendType), e.items||'', e.food||'', e.lat, e.lng]);
+  });
+  var wb = XLSX.utils.book_new();
+  var ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{wch:22},{wch:30},{wch:16},{wch:20},{wch:40},{wch:30},{wch:12},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Participants');
+  XLSX.writeFile(wb, 'rosedale_yardsale.xlsx');
+}
+
+/* ---- EXPORT PDF (print) ---- */
+function exportPDF() {
+  if (!entries.length) { alert('No participants yet.'); return; }
+  document.getElementById('print-date').textContent = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  window.print();
+}
+
+function dl(name, uri) { var a = document.createElement('a'); a.href = uri; a.download = name; a.click(); }
+
+function updateCount() {
+  var n = entries.length;
+  document.getElementById('cnt-badge').textContent = n + ' participant' + (n!==1?'s':'');
+  document.getElementById('food-badge').style.display = entries.some(function(e){return e.vendType==='food'||e.vendType==='both';}) ? 'block' : 'none';
+}
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ---- BOOT ---- */
+window.addEventListener('DOMContentLoaded', function() {
+  load();
+  initMap();
+  renderAll();
+  updateCount();
 });
 </script>
 </body>
